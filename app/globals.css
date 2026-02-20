@@ -1,26 +1,77 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --forest: #2d5016;
+  --forest-light: #4a7c28;
+  --bark: #8b6914;
+  --cream: #faf8f0;
+  --stone: #6b7280;
+  --charcoal: #1f2937;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: "Inter", system-ui, sans-serif;
+  color: var(--charcoal);
+  background: var(--cream);
+}
+
+.hero-bg {
+  background: linear-gradient(
+      135deg,
+      rgba(0, 0, 0, 0.55) 0%,
+      rgba(0, 0, 0, 0.2) 100%
+    ),
+    url("/hero.jpg") center/cover no-repeat;
+  min-height: 100vh;
+}
+
+.glass {
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.btn-primary {
+  @apply px-6 py-3 rounded-lg font-semibold text-white transition-all;
+  background: var(--forest);
+}
+.btn-primary:hover {
+  background: var(--forest-light);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(45, 80, 22, 0.35);
+}
+
+.card {
+  @apply rounded-2xl bg-white shadow-lg p-6;
+}
+
+.input {
+  @apply w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-green-600 focus:ring-2 focus:ring-green-200 outline-none transition-all;
+}
+
+.calendar-day {
+  @apply w-10 h-10 flex items-center justify-center rounded-full text-sm cursor-pointer transition-all;
+}
+.calendar-day:hover:not(.unavailable):not(.selected) {
+  @apply bg-green-100;
+}
+.calendar-day.selected {
+  background: var(--forest);
+  @apply text-white;
+}
+.calendar-day.in-range {
+  @apply bg-green-100;
+}
+.calendar-day.unavailable {
+  @apply text-gray-300 cursor-not-allowed line-through;
+}
+
+.fade-in {
+  animation: fadeIn 0.6s ease-out;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
 }

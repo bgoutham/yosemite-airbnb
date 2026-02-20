@@ -1,65 +1,116 @@
-import Image from "next/image";
+"use client";
+
+import { useEffect, useState } from "react";
+import { supabase } from "@/lib/supabase";
+import Link from "next/link";
+
+const AMENITY_ICONS: Record<string, string> = {
+  WiFi: "📶",
+  "Full Kitchen": "🍳",
+  Fireplace: "🔥",
+  "Hot Tub": "♨️",
+  "BBQ Grill": "🥩",
+  "Free Parking": "🅿️",
+  "Washer / Dryer": "👕",
+  "Mountain Views": "🏔️",
+  "Hiking Trails": "🥾",
+  "Pet Friendly": "🐕",
+};
 
 export default function Home() {
+  const [property, setProperty] = useState<any>(null);
+
+  useEffect(() => {
+    supabase
+      .from("property")
+      .select("*")
+      .limit(1)
+      .single()
+      .then(({ data }) => setProperty(data));
+  }, []);
+
+  if (!property) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[var(--cream)]">
+        <div className="animate-pulse text-[var(--forest)] text-xl">Loading...</div>
+      </div>
+    );
+  }
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
+    <main>
+      <section className="hero-bg flex items-center justify-center text-white text-center px-4">
+        <div className="max-w-3xl fade-in">
+          <h1 className="text-5xl md:text-7xl font-bold mb-4 tracking-tight">
+            {property.name}
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+          <p className="text-xl md:text-2xl mb-2 opacity-90">{property.tagline}</p>
+          <p className="text-lg opacity-70 mb-8">
+            {property.bedrooms} bed · {property.bathrooms} bath · Up to{" "}
+            {property.max_guests} guests
           </p>
+          <Link href="/booking" className="btn-primary text-lg px-8 py-4 inline-block">
+            Check Availability & Book
+          </Link>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+      </section>
+
+      <section className="max-w-4xl mx-auto py-20 px-6 fade-in">
+        <h2 className="text-3xl font-bold mb-6 text-[var(--forest)]">
+          About the Property
+        </h2>
+        <p className="text-lg leading-relaxed text-gray-700">{property.description}</p>
+        <div className="mt-8 flex flex-wrap gap-4 text-sm">
+          <span className="bg-green-50 text-[var(--forest)] px-4 py-2 rounded-full font-medium">
+            📍 Near Yosemite National Park
+          </span>
+          <span className="bg-green-50 text-[var(--forest)] px-4 py-2 rounded-full font-medium">
+            🕐 Check-in {property.check_in_time}
+          </span>
+          <span className="bg-green-50 text-[var(--forest)] px-4 py-2 rounded-full font-medium">
+            🕐 Check-out {property.check_out_time}
+          </span>
+          <span className="bg-green-50 text-[var(--forest)] px-4 py-2 rounded-full font-medium">
+            🌙 {property.min_nights}-night minimum
+          </span>
         </div>
-      </main>
-    </div>
+      </section>
+
+      <section className="bg-white py-20 px-6">
+        <div className="max-w-4xl mx-auto">
+          <h2 className="text-3xl font-bold mb-8 text-[var(--forest)]">Amenities</h2>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+            {(property.amenities || []).map((a: string) => (
+              <div
+                key={a}
+                className="flex flex-col items-center gap-2 p-4 rounded-xl bg-[var(--cream)] hover:shadow-md transition-shadow"
+              >
+                <span className="text-2xl">{AMENITY_ICONS[a] || "✨"}</span>
+                <span className="text-sm font-medium text-center">{a}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="max-w-4xl mx-auto py-20 px-6 text-center">
+        <h2 className="text-3xl font-bold mb-4 text-[var(--forest)]">Pricing</h2>
+        <div className="text-5xl font-bold text-[var(--charcoal)] mb-2">
+          ${(property.base_price / 100).toFixed(0)}
+          <span className="text-xl font-normal text-gray-500"> / night</span>
+        </div>
+        <p className="text-gray-500 mb-8">
+          + ${(property.cleaning_fee / 100).toFixed(0)} cleaning fee · {(Number(property.service_fee_pct) * 100).toFixed(0)}% service fee
+        </p>
+        <Link href="/booking" className="btn-primary text-lg px-8 py-4 inline-block">
+          Book Your Stay
+        </Link>
+      </section>
+
+      <footer className="bg-[var(--charcoal)] text-gray-400 py-10 px-6 text-center">
+        <p className="text-white font-semibold text-lg mb-2">{property.name}</p>
+        <p className="text-sm">© {new Date().getFullYear()} Yosemite Airbnb. All rights reserved.</p>
+      </footer>
+    </main>
   );
 }
